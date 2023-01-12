@@ -1,4 +1,4 @@
-name = "highrise-slack-worker"
+name = "highrise-slack-staging"
 main = "src/index.js"
 account_id = "058b57748d31e63e7bfdb0f690cb8ba7"
 compatibility_date = "2023-01-12"
@@ -13,9 +13,25 @@ kv_namespaces = [
 [triggers]
 crons = [ "*/15 * * * *" ]
 
+[env.fundraising]
+name = "highrise-slack-fundraising"
+
+[env.fundraising.vars]
+ENVIRONMENT = "fundraising"
+EVERYONE = "FALSE"
+HIGHRISE_GROUPS = "463829"
+
+[env.programs]
+name = "highrise-slack-programs"
+
+[env.programs.vars]
+ENVIRONMENT = "programs"
+EVERYONE = "TRUE"
+HIGHRISE_GROUPS = "684498"
+
 [vars]
+HIGHRISE_URL = "https://ddem.highrisehq.com/"
 # HIGHRISE_TOKEN - Highrise API token
-# HIGHRISE_URL - Base URL for Highrise API requests
 # SLACK_URL - Slack webhook URL for channel
 # HIGHRISE_GROUPS - Only include records visible to these highrise groups (comma-separated list)
 # EVERYONE - set to 'TRUE' to include records visible to everyone in sync
