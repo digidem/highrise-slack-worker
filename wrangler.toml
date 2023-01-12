@@ -15,6 +15,9 @@ crons = [ "*/15 * * * *" ]
 
 [env.fundraising]
 name = "highrise-slack-fundraising"
+kv_namespaces = [
+  { binding = "HIGHRISE_SYNC_KV", id = "226b384e54d841ad96e10ecbac8115eb", preview_id = "723aa08a4f2c45d58a0e93d4d6841057" }
+]
 
 [env.fundraising.vars]
 HIGHRISE_URL = "https://ddem.highrisehq.com/"
@@ -24,6 +27,9 @@ HIGHRISE_GROUPS = "463829"
 
 [env.programs]
 name = "highrise-slack-programs"
+kv_namespaces = [
+  { binding = "HIGHRISE_SYNC_KV", id = "226b384e54d841ad96e10ecbac8115eb", preview_id = "723aa08a4f2c45d58a0e93d4d6841057" }
+]
 
 [env.programs.vars]
 HIGHRISE_URL = "https://ddem.highrisehq.com/"
