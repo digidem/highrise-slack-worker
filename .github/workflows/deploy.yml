@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    strategy:
+      matrix:
+        include:
+          - worker_name: "highrise-slack-fundraising"
+            slack_url: ${{ secrets.SLACK_URL_FUNDRAISING }}
+            highrise_groups: ${{ secrets.GROUPS_FUNDRAISING }}
+            everyone: "FALSE"
+            start_date: "2022-11-30T00:00:00.000Z"
+          - worker_name: "highrise-slack-programs"
+            slack_url: ${{ secrets.SLACK_URL_PROGRAMS }}
+            highrise_groups: ${{ secrets.GROUPS_PROGRAMS }}
+            everyone: "TRUE"
+            start_date: "2022-11-29T00:00:00.000Z"
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish
+        uses: cloudflare/wrangler-action@2.0.0
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: deploy --name ${{ matrix.worker_name }}
+          secrets: |
+            HIGHRISE_TOKEN
+            HIGHRISE_URL
+            SLACK_URL
+            HIGHRISE_GROUPS
+            EVERYONE
+            START_DATE
+        env:
+          HIGHRISE_TOKEN: ${{ secrets.HIGHRISE_TOKEN }}
+          HIGHRISE_URL: ${{ secrets.HIGHRISE_URL }}
+          SLACK_URL: ${{ matrix.slack_url }}
+          HIGHRISE_GROUPS: ${{ matrix.highrise_groups }}
+          EVERYONE: ${{ matrix.everyone }}
+          START_DATE: ${{ matrix.start_date }}
