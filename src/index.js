@@ -1,4 +1,9 @@
 // @ts-check
+import { syncRecordings, parseEnv } from 'highrise-slack-sync'
+import debug from 'debug'
+
+debug.enable('highrise-slack:*')
+const log = debug('highrise-slack:worker')
 
 /**
  * Welcome to Cloudflare Workers! This is your first scheduled worker.
@@ -14,31 +19,57 @@
 
 /**
  * @typedef {object} Env
- * @property {KVNamespace} HIGHRISE_KV
+ * @property {KVNamespace} HIGHRISE_SYNC_KV
  * @property {string} HIGHRISE_TOKEN
  * @property {string} HIGHRISE_URL
  * @property {string} SLACK_URL
  * @property {string} HIGHRISE_GROUPS
  * @property {string} EVERYONE
+ * @property {string} [START_DATE] initial start date as ISO string in UTC timezone
  */
 
-// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-// MY_KV_NAMESPACE: KVNamespace;
-//
-// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-// MY_DURABLE_OBJECT: DurableObjectNamespace;
-//
-// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-// MY_BUCKET: R2Bucket;
+const ONE_WEEK = 1000 * 60 * 60 * 24 * 7
+
+// Polyfill for setImmediate, used by deps but not available in Cloudflare workers
+// @ts-ignore
+self.setImmediate = fn => setTimeout(fn, 0)
+
+/** @param {Env} env */
+async function handleScheduledEvent (env) {
+  const syncOptions = parseEnv(env)
+  const key = await encodeKVKey(syncOptions)
+  log('KV key for previous sync:', key)
+  const previousSync = await env.HIGHRISE_SYNC_KV.get(key)
+  const syncSinceDate = new Date(
+    previousSync || env.START_DATE || Date.now() - ONE_WEEK
+  )
+  const syncedUntil = await syncRecordings(syncSinceDate, syncOptions)
+  if (syncedUntil.toISOString() !== previousSync) {
+    await env.HIGHRISE_SYNC_KV.put(key, syncedUntil.toISOString())
+  }
+}
+
+/** @param {Parameters<typeof syncRecordings>[1]} opts */
+async function encodeKVKey (opts) {
+  const textKey =
+    opts.highriseUrl +
+    opts.slackUrl +
+    JSON.stringify(opts.showEveryone) +
+    JSON.stringify(opts.groups.sort())
+  const bufferKey = new TextEncoder().encode(textKey)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', bufferKey)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return hashHex
+}
 
 export default {
   /**
-   *
    * @param {ScheduledController} controller
    * @param {Env} env
    * @param {ExecutionContext} ctx
    */
   async scheduled (controller, env, ctx) {
-    console.log(`Hello World!`)
+    ctx.waitUntil(handleScheduledEvent(env))
   }
 }
