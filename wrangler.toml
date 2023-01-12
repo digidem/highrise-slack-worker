@@ -1,5 +1,6 @@
 name = "highrise-slack-worker"
 main = "src/index.js"
+account_id = "058b57748d31e63e7bfdb0f690cb8ba7"
 compatibility_date = "2023-01-12"
 node_compat = true
 compatibility_flags = [
