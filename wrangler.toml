@@ -3,9 +3,9 @@ main = "src/index.js"
 account_id = "058b57748d31e63e7bfdb0f690cb8ba7"
 compatibility_date = "2023-01-12"
 node_compat = true
-compatibility_flags = [
-  "streams_enable_constructors"
-]
+# compatibility_flags = [
+#   "streams_enable_constructors"
+# ]
 kv_namespaces = [
   { binding = "HIGHRISE_SYNC_KV", id = "226b384e54d841ad96e10ecbac8115eb", preview_id = "723aa08a4f2c45d58a0e93d4d6841057" }
 ]
