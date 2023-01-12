@@ -28,7 +28,7 @@ jobs:
         uses: cloudflare/wrangler-action@2.0.0
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --name ${{ matrix.worker_name }}
+          command: publish --name ${{ matrix.worker_name }}
           secrets: |
             HIGHRISE_TOKEN
             HIGHRISE_URL
