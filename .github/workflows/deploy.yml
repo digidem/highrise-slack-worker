@@ -31,4 +31,4 @@ jobs:
           environment: ${{ matrix.environment }}
           preCommands: |
             echo ${{ secrets.HIGHRISE_TOKEN }} | wrangler secret put HIGHRISE_TOKEN
-            echo ${{ secrets.[matrix.slack_url_secret] }} | wrangler secret put SLACK_URL
+            echo ${{ secrets[matrix.slack_url_secret] }} | wrangler secret put SLACK_URL
