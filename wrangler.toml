@@ -1,0 +1,6 @@
+name = "highrise-slack-worker"
+main = "src/index.js"
+compatibility_date = "2023-01-12"
+
+[triggers]
+crons = [ "1 * * * *" ]
