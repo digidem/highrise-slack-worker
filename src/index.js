@@ -36,6 +36,8 @@ self.setImmediate = fn => setTimeout(fn, 0)
 
 /** @param {Env} env */
 async function handleScheduledEvent (env) {
+  console.log(env)
+  console.log(typeof env.HIGHRISE_TOKEN)
   const syncOptions = parseEnv(env)
   const key = (env.ENVIRONMENT || 'testing') + 'LastCheck'
   log('KV key for previous sync:', key)
