@@ -17,6 +17,7 @@ crons = [ "*/15 * * * *" ]
 name = "highrise-slack-fundraising"
 
 [env.fundraising.vars]
+HIGHRISE_URL = "https://ddem.highrisehq.com/"
 ENVIRONMENT = "fundraising"
 EVERYONE = "FALSE"
 HIGHRISE_GROUPS = "463829"
@@ -25,6 +26,7 @@ HIGHRISE_GROUPS = "463829"
 name = "highrise-slack-programs"
 
 [env.programs.vars]
+HIGHRISE_URL = "https://ddem.highrisehq.com/"
 ENVIRONMENT = "programs"
 EVERYONE = "TRUE"
 HIGHRISE_GROUPS = "684498"
