@@ -43,7 +43,7 @@ async function handleScheduledEvent (env) {
   log('KV key for previous sync:', key)
   const previousSync = await env.HIGHRISE_SYNC_KV.get(key)
   const syncSinceDate = new Date(previousSync || Date.now() - ONE_WEEK)
-  const syncedUntil = await syncRecordings(syncSinceDate, syncOptions)
+  const syncedUntil = await syncRecordings(syncSinceDate, { ...syncOptions, requestLimit: 50 })
   if (syncedUntil.toISOString() !== previousSync) {
     await env.HIGHRISE_SYNC_KV.put(key, syncedUntil.toISOString())
   }
