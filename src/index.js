@@ -25,6 +25,7 @@ const log = debug('highrise-slack:worker')
  * @property {string} SLACK_URL
  * @property {string} HIGHRISE_GROUPS
  * @property {string} EVERYONE
+ * @property {string} SECRET
  * @property {string} [ENVIRONMENT]
  */
 
@@ -35,7 +36,7 @@ const ONE_WEEK = 1000 * 60 * 60 * 24 * 7
 self.setImmediate = fn => setTimeout(fn, 0)
 
 /** @param {Env} env */
-async function handleScheduledEvent (env) {
+async function sync (env) {
   console.log(env)
   console.log(typeof env.HIGHRISE_TOKEN)
   const syncOptions = parseEnv(env)
@@ -43,19 +44,29 @@ async function handleScheduledEvent (env) {
   log('KV key for previous sync:', key)
   const previousSync = await env.HIGHRISE_SYNC_KV.get(key)
   const syncSinceDate = new Date(previousSync || Date.now() - ONE_WEEK)
-  const syncedUntil = await syncRecordings(syncSinceDate, { ...syncOptions, requestLimit: 50 })
+  const syncedUntil = await syncRecordings(syncSinceDate, {
+    ...syncOptions,
+    requestLimit: 50
+  })
   if (syncedUntil.toISOString() !== previousSync) {
     await env.HIGHRISE_SYNC_KV.put(key, syncedUntil.toISOString())
+    log('Synced until:', syncedUntil)
   }
+  return syncedUntil
 }
 
-export default {
-  /**
-   * @param {ScheduledController} controller
-   * @param {Env} env
-   * @param {ExecutionContext} ctx
-   */
+export default /** @satisfies {ExportedHandler<Env>} */ ({
   async scheduled (controller, env, ctx) {
-    ctx.waitUntil(handleScheduledEvent(env))
+    ctx.waitUntil(sync(env))
+  },
+  async fetch (request, env, ctx) {
+    if (request.method !== 'POST') {
+      return new Response('Method not allowed', { status: 405 })
+    }
+    if (request.headers.get('Authorization') !== `Bearer ${env.SECRET}`) {
+      return new Response('Unauthorized', { status: 401 })
+    }
+    const syncedUntil = await sync(env)
+    return new Response(`Synced until: ${syncedUntil.toISOString()}`)
   }
-}
+});
