@@ -11,11 +11,7 @@ jobs:
       matrix:
         include:
           - environment: "fundraising"
-            slack_url_secret: SLACK_URL_TEST
-            start_date: "2022-11-30T00:00:00.000Z"
           - environment: "programs"
-            slack_url_secret: SLACK_URL_TEST
-            start_date: "2022-11-29T00:00:00.000Z"
     runs-on: ubuntu-latest
     name: Deploy
     steps:
@@ -29,6 +25,3 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           environment: ${{ matrix.environment }}
-          preCommands: |
-            echo ${{ secrets.HIGHRISE_TOKEN }} | wrangler secret put --env ${{ matrix.environment }} HIGHRISE_TOKEN
-            echo ${{ secrets[matrix.slack_url_secret] }} | wrangler secret put --env ${{ matrix.environment }} SLACK_URL
